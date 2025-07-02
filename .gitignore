@@ -1,0 +1,6 @@
+__pycache__/
+.venv/
+apptainer_image/
+wandb/
+*.pt
+train_val_test.py/
