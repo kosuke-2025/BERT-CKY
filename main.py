@@ -3,7 +3,7 @@ import torch
 from torch.optim import AdamW
 import os
 import wandb
-from transformers import get_linear_schedule_with_warmup
+from transformers import get_cosine_schedule_with_warmup
 
 from data import read_and_binarize, build_label2id, build_rhs_to_lhs, split_data
 from train_evaluate import train_and_validate, evaluate_model, generate_detailed_report
@@ -27,7 +27,7 @@ def main():
         "dataset": "MCTB",
         "optimizer": "AdamW",
         "weight_decay": 0.01,    #0.01がデフォルト値
-        "learining_rate_scheduling": "linear_warmup"
+        "learining_rate_scheduling": "linear_warmup, cosine_annealing"
     }
 
     wandb.init(
@@ -51,7 +51,7 @@ def main():
 
     num_training_steps = len(train_trees) * epochs
     num_warmup_steps = int(0.1 * num_training_steps)
-    scheduler = get_linear_schedule_with_warmup(
+    scheduler = get_cosine_schedule_with_warmup(
         optimizer,
         num_warmup_steps=num_warmup_steps,
         num_training_steps=num_training_steps
@@ -66,18 +66,18 @@ def main():
     wandb.finish()
 
     # 20, 161, 257
-    a = []
-    for i in range(0,500):
-        if i in [20, 161, 257]:
-            continue
-        a.append(test_trees[i])
-    evalb_result = run_pyevalb_evaluation(model, test_trees[9], id2label, tokenizer, rhs_to_lhs, device)
+    # a = []
+    # for i in range(0,500):
+    #     if i in [20, 161, 257]:
+    #         continue
+    #     a.append(test_trees[i])
+    # evalb_result = run_pyevalb_evaluation(model, test_trees[9], id2label, tokenizer, rhs_to_lhs, device)
 
-    print("\n--- Final Test Results (PARSEVAL with pyevalb) ---")
-    print(f"  Precision: {evalb_result['precision']:.4f}")
-    print(f"  Recall:    {evalb_result['recall']:.4f}")
-    print(f"  F1-Score:  {evalb_result['f1']:.4f}")
-    print(f"  Tagging Accuracy: {evalb_result['tag_accuracy']:.2%}")
+    # print("\n--- Final Test Results (PARSEVAL with pyevalb) ---")
+    # print(f"  Precision: {evalb_result['precision']:.4f}")
+    # print(f"  Recall:    {evalb_result['recall']:.4f}")
+    # print(f"  F1-Score:  {evalb_result['f1']:.4f}")
+    # print(f"  Tagging Accuracy: {evalb_result['tag_accuracy']:.2%}")
 
 if __name__ == "__main__":
     main()
