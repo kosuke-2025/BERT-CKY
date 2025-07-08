@@ -3,4 +3,4 @@ __pycache__/
 apptainer_image/
 wandb/
 *.pt
-train_val_test.py/
+train_val_test.py
