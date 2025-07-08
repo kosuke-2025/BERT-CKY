@@ -30,10 +30,10 @@ def main():
         "learining_rate_scheduling": "linear_warmup"
     }
 
-    # wandb.init(
-    #     project="BERT_CKY",  # プロジェクト名（自由に設定）
-    #     config=config,
-    # )
+    wandb.init(
+        project="BERT_CKY",  # プロジェクト名（自由に設定）
+        config=config,
+    )
     
     binarized_trees = read_and_binarize(file_names)
 
@@ -45,25 +45,25 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = SpanScorer(num_labels=len(label2id)).to(device)
     tokenizer = BertTokenizerFast.from_pretrained(config['model_name'])
-    # wandb.watch(model, log_freq=100)
-    # optimizer = AdamW(model.parameters(), lr=wandb.config.learning_rate, weight_decay=wandb.config.weight_decay)
-    # epochs = wandb.config.epochs
+    wandb.watch(model, log_freq=100)
+    optimizer = AdamW(model.parameters(), lr=wandb.config.learning_rate, weight_decay=wandb.config.weight_decay)
+    epochs = wandb.config.epochs
 
-    # num_training_steps = len(train_trees) * epochs
-    # num_warmup_steps = int(0.1 * num_training_steps)
-    # scheduler = get_linear_schedule_with_warmup(
-    #     optimizer,
-    #     num_warmup_steps=num_warmup_steps,
-    #     num_training_steps=num_training_steps
-    # )
+    num_training_steps = len(train_trees) * epochs
+    num_warmup_steps = int(0.1 * num_training_steps)
+    scheduler = get_linear_schedule_with_warmup(
+        optimizer,
+        num_warmup_steps=num_warmup_steps,
+        num_training_steps=num_training_steps
+    )
 
-    # best_model_state_dict = train_and_validate(model, train_trees, val_trees, epochs, label2id, tokenizer, optimizer, scheduler, device, patience=wandb.config.patience)
+    best_model_state_dict = train_and_validate(model, train_trees, val_trees, epochs, label2id, tokenizer, optimizer, scheduler, device, patience=wandb.config.patience)
     
-    # torch.save(best_model_state_dict, os.path.join("./", "model.pt"))
+    torch.save(best_model_state_dict, os.path.join("./", "model.pt"))
     model.load_state_dict(torch.load("./model.pt", map_location=device))
 
-    # evaluate_model(model, test_trees, label2id, tokenizer, device)
-    # wandb.finish()
+    evaluate_model(model, test_trees, label2id, tokenizer, device)
+    wandb.finish()
 
     # 20, 161, 257
     a = []
